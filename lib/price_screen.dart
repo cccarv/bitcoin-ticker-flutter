@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:bitcoin_ticker/coin_data.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -6,6 +8,8 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
+  String selectedCurrency = 'USD';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +46,23 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: null,
+            child: Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: DropdownButton<String>(
+                value: selectedCurrency,
+                items: [
+                  DropdownMenuItem(child: Text('USD'), value: 'USD'),
+                  DropdownMenuItem(child: Text('EUR'), value: 'EUR'),
+                  DropdownMenuItem(child: Text('GBP'), value: 'GBP'),
+                ],
+                onChanged: (value) {
+                  print(value);
+                  setState(() {
+                    selectedCurrency = value;
+                  });
+                },
+              ),
+            ),
           ),
         ],
       ),
