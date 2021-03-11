@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:bitcoin_ticker/coin_data.dart';
+import 'dart:io' show Platform;
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -9,6 +10,65 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
+  //CoinData coinData = CoinData();
+  var bitcoinValueInUSD = '?';
+
+  void getQuote() async {
+    try {
+      Map<String, dynamic> quote = await CoinData().getCoinData();
+      setState(() {
+        bitcoinValueInUSD = quote['rate'].toStringAsFixed(0);
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  DropdownButton<String> androidDropDown() {
+    List<DropdownMenuItem<String>> dropDownItems = [];
+    for (String currency in currenciesList) {
+      var newItem = DropdownMenuItem(
+        child: Text(currency),
+        value: currency,
+      );
+      dropDownItems.add(newItem);
+    }
+
+    return DropdownButton<String>(
+      value: selectedCurrency,
+      items: dropDownItems,
+      onChanged: (value) {
+        setState(
+          () {
+            selectedCurrency = value;
+          },
+        );
+      },
+    );
+  }
+
+  CupertinoPicker iOSPicker() {
+    List<Text> pickerItems = [];
+    for (String currency in currenciesList) {
+      pickerItems.add(
+        Text(currency),
+      );
+    }
+    return CupertinoPicker(
+      itemExtent: 38,
+      onSelectedItemChanged: (selectedIndex) {
+        print(selectedIndex);
+      },
+      children: pickerItems,
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getQuote();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +91,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = ? USD',
+                  '1 BTC = $bitcoinValueInUSD USD',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
@@ -48,20 +108,7 @@ class _PriceScreenState extends State<PriceScreen> {
             color: Colors.lightBlue,
             child: Padding(
               padding: const EdgeInsets.all(30.0),
-              child: DropdownButton<String>(
-                value: selectedCurrency,
-                items: [
-                  DropdownMenuItem(child: Text('USD'), value: 'USD'),
-                  DropdownMenuItem(child: Text('EUR'), value: 'EUR'),
-                  DropdownMenuItem(child: Text('GBP'), value: 'GBP'),
-                ],
-                onChanged: (value) {
-                  print(value);
-                  setState(() {
-                    selectedCurrency = value;
-                  });
-                },
-              ),
+              child: Platform.isIOS ? iOSPicker() : androidDropDown(),
             ),
           ),
         ],
